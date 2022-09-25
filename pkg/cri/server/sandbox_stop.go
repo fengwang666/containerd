@@ -55,6 +55,7 @@ func (c *criService) stopPodSandbox(ctx context.Context, sandbox sandboxstore.Sa
 	// and container may still be created, so production should not rely on this behavior.
 	// TODO(random-liu): Introduce a state in sandbox to avoid future container creation.
 	containers := c.containerStore.List()
+	log.G(ctx).Infof("fengwang: sandbox %q has %q containers", id, len(containers))
 	for _, container := range containers {
 		if container.SandboxID != id {
 			continue
@@ -66,12 +67,14 @@ func (c *criService) stopPodSandbox(ctx context.Context, sandbox sandboxstore.Sa
 		}
 	}
 
+
 	if err := c.cleanupSandboxFiles(id, sandbox.Config); err != nil {
 		return errors.Wrap(err, "failed to cleanup sandbox files")
 	}
 
 	// Only stop sandbox container when it's running or unknown.
 	state := sandbox.Status.Get().State
+	log.G(ctx).Infof("fengwang: sandbox %q state is %q", id, state.String())
 	if state == sandboxstore.StateReady || state == sandboxstore.StateUnknown {
 		if err := c.stopSandboxContainer(ctx, sandbox); err != nil {
 			return errors.Wrapf(err, "failed to stop sandbox container %q in %q state", id, state)

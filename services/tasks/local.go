@@ -244,6 +244,7 @@ func (l *local) Start(ctx context.Context, r *api.StartRequest, _ ...grpc.CallOp
 }
 
 func (l *local) Delete(ctx context.Context, r *api.DeleteTaskRequest, _ ...grpc.CallOption) (*api.DeleteResponse, error) {
+	log.G(ctx).WithField("id", r.ContainerID).Debug("fengwang: local deletes task")
 	t, err := l.getTask(ctx, r.ContainerID)
 	if err != nil {
 		return nil, err
@@ -271,6 +272,7 @@ func (l *local) DeleteProcess(ctx context.Context, r *api.DeleteProcessRequest, 
 	if err != nil {
 		return nil, errdefs.ToGRPC(err)
 	}
+	log.G(ctx).WithField("id", r.ContainerID).Debug("fengwang: local deletes process")
 	exit, err := process.Delete(ctx)
 	if err != nil {
 		return nil, errdefs.ToGRPC(err)
@@ -309,6 +311,7 @@ func getProcessState(ctx context.Context, p runtime.Process) (*task.Process, err
 	default:
 		log.G(ctx).WithField("status", state.Status).Warn("unknown status")
 	}
+	log.G(ctx).Infof("fengwang: process state is %q for process %q", status.String(), p.ID())
 	return &task.Process{
 		ID:         p.ID(),
 		Pid:        state.Pid,

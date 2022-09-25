@@ -238,6 +238,7 @@ func (s *shim) Close() error {
 }
 
 func (s *shim) Delete(ctx context.Context) (*runtime.Exit, error) {
+	log.G(ctx).WithField("id", s.ID()).Debug("fengwang: shim deletes task")
 	response, shimErr := s.task.Delete(ctx, &task.DeleteRequest{
 		ID: s.ID(),
 	})

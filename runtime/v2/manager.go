@@ -135,6 +135,7 @@ func (m *TaskManager) Create(ctx context.Context, id string, opts runtime.Create
 	}
 	defer func() {
 		if retErr != nil {
+			log.G(ctx).WithField("id", id).WithError(err).Debug("fengwang: TaskManager deletes shim")
 			m.deleteShim(shim)
 		}
 	}()

@@ -21,6 +21,7 @@ import (
 
 	tasktypes "github.com/containerd/containerd/api/types/task"
 	"github.com/containerd/containerd/errdefs"
+	"github.com/containerd/containerd/log"
 	"github.com/containerd/containerd/runtime"
 	"github.com/containerd/containerd/runtime/v2/task"
 	"github.com/containerd/ttrpc"
@@ -139,6 +140,7 @@ func (p *process) Wait(ctx context.Context) (*runtime.Exit, error) {
 }
 
 func (p *process) Delete(ctx context.Context) (*runtime.Exit, error) {
+	log.G(ctx).WithField("id", p.shim.ID()).Debug("fengwang: process deletes task")
 	response, err := p.shim.task.Delete(ctx, &task.DeleteRequest{
 		ID:     p.shim.ID(),
 		ExecID: p.id,

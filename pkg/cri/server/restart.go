@@ -360,6 +360,7 @@ func (c *criService) loadSandbox(ctx context.Context, cntr containerd.Container)
 		var notFound bool
 		if errdefs.IsNotFound(err) {
 			// Task is not found.
+			log.G(ctx).Infof("fengwang: task not found for container %q", cntr.ID())
 			notFound = true
 		} else {
 			// Task is found. Get task status.
@@ -369,11 +370,13 @@ func (c *criService) loadSandbox(ctx context.Context, cntr containerd.Container)
 				if !errdefs.IsNotFound(err) {
 					return status, errors.Wrap(err, "failed to get task status")
 				}
+				log.G(ctx).Infof("fengwang: task status not found for container %q", cntr.ID())
 				notFound = true
 			}
 		}
 		if notFound {
 			// Task does not exist, set sandbox state as NOTREADY.
+			log.G(ctx).Infof("fengwang: set status to StateNotReady for container %q", cntr.ID())
 			status.State = sandboxstore.StateNotReady
 		} else {
 			if taskStatus.Status == containerd.Running {
@@ -384,6 +387,7 @@ func (c *criService) loadSandbox(ctx context.Context, cntr containerd.Container)
 					if !errdefs.IsNotFound(err) {
 						return status, errors.Wrap(err, "failed to wait for task")
 					}
+					log.G(ctx).Infof("fengwang: wait failed, set status to StateNotReady for container %q", cntr.ID())
 					status.State = sandboxstore.StateNotReady
 				} else {
 					// Task is running, set sandbox state as READY.
@@ -396,6 +400,7 @@ func (c *criService) loadSandbox(ctx context.Context, cntr containerd.Container)
 				if _, err := t.Delete(ctx, containerd.WithProcessKill); err != nil && !errdefs.IsNotFound(err) {
 					return status, errors.Wrap(err, "failed to delete task")
 				}
+				log.G(ctx).Infof("fengwang: task not running, set status to StateNotReady for container %q", cntr.ID())
 				status.State = sandboxstore.StateNotReady
 			}
 		}

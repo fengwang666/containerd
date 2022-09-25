@@ -52,6 +52,7 @@ func (c *criService) StopContainer(ctx context.Context, r *runtime.StopContainer
 // stopContainer stops a container based on the container metadata.
 func (c *criService) stopContainer(ctx context.Context, container containerstore.Container, timeout time.Duration) error {
 	id := container.ID
+	log.G(ctx).Infof("fengwang: stop container %q", id)
 
 	// Return without error if container is not running. This makes sure that
 	// stop only takes real action after the container is started.
